@@ -6,22 +6,23 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Models\Colors;
 
 
 class TempHistory extends Controller
 {
-    //
+    //show current weekly average
     function index()
     {
 
         $requestURI = "http://api.worldweatheronline.com/free/v2/past-weather.ashx";
         $requestArray = [
-            "key"       => env('WEATHER_API_KEY'), //api license key
-            "q"         => 22314,   //postal code | city,st | lat,long
+            "key"       => env('WEATHER_API_KEY'),      //api license key
+            "q"         => env('POSTAL_CODE'),          //postal code | city,st | lat,long
             "format"    => "json",
-            "tp"        => 24,      //period in hours
+            "tp"        => 24,                          //period in hours
             "date"      => "2016-01-01",
-            "enddate"   => "2016-01-07"         //enddate has to be in the same month
+            "enddate"   => "2016-01-07"                 //enddate has to be in the same month
         ];
 
 //        $almanac = [
@@ -48,8 +49,6 @@ class TempHistory extends Controller
         
         $url = \Laracurl::buildUrl($requestURI, $requestArray);
         $response = \Laracurl::get($url);
-//        dd($response);
-//        if(!array_key_exists('data', $response)){
         if($response->code != "200 OK") {
             $error = $response->body;
             return view('index', compact('error', 'requestArray'));
@@ -71,9 +70,7 @@ class TempHistory extends Controller
         foreach($weeklystats as $stat=>$value){
             $weeklystats[$stat] = $value / 7;
         }
-//        return $weeklystats;
-            
-//dd($weather);
+
         $tempRanges = $this->getTempRanges();
         foreach($tempRanges as $range){
             if($weeklystats['avg'] > $range['low'] && $weeklystats['avg'] < $range['high']){
@@ -91,37 +88,19 @@ class TempHistory extends Controller
     }
     
     function getTempRanges()
-    {
-        $colorData = [
-            ["name" => "teal", "hex" => "#05495a"],
-            ["name" => "meadow", "hex" => "#7e824d"],
-            ["name" => "camel", "hex" => "#b79261"],
-            ["name" => "gold", "hex" => "#d6923d"],
-            ["name" => "claret", "hex" => "#7d1b2a"],
-            ["name" => "copper", "hex" => "#963d24"],
-            ["name" => "lime", "hex" => "#c2b144"],
-            ["name" => "khaki", "hex" => "#4c482e"],
-            ["name" => "grape", "hex" => "#6b465b"],
-            ["name" => "magenta", "hex" => "#9f4995"],
-            ["name" => "pale rose", "hex" => "#b17b8a"],
-            ["name" => "spice", "hex" => "#e17649"],
-            ["name" => "raspberry", "hex" => "#ae4569"],
-            ["name" => "wisteria", "hex" => "#9a8abe"],
-            ["name" => "aster", "hex" => "#2868a8"],
-        ];
+    {        
+        $colors = Colors::all();
         
         $hi = 95;
         $low = 30;
-        $colors = 15;
-        $range = [$hi, $low];
-        $increment = ($hi - $low) / $colors;
+        $colorCount = count($colors);
+        $increment = ($hi - $low) / $colorCount;
         $temp = $low;
-        for($i=0;$i<$colors;$i++){
-            $startTemp = ceil($temp);
+        for($i=0;$i<$colorCount;$i++){
+            $startTemp = $temp;
             $temp += $increment;
-            $tempRanges[] = ["low" => $startTemp, "high" => floor($temp), "color" => $colorData[$i]];
+            $tempRanges[] = ["low" => ceil($startTemp), "high" => floor($temp), "color" => $colors[$i]];
         }
         return $tempRanges;
-
     }
 }

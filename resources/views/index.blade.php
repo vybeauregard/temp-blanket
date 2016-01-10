@@ -8,7 +8,7 @@ Weekly Temps
 @if(isset($weeklystats))
 <h1>Week of {{ $requestArray['date'] }}:</h1>
 <div>{{ floor($weeklystats['avg']) }}&deg;F</div>
-<div style="background-color:{{ $weeklystats['color']['hex'] }};color:#FFF;">{{ $weeklystats['color']['name'] }}</div>
+<div style="background-color:#{{ $weeklystats['color']['hex'] }};color:#FFF;">{{ $weeklystats['color']['name'] }}</div>
 @endif
 
 @if(isset($error))

@@ -11,7 +11,7 @@ Colors
     <tr>
         <!-- td>{{ $band['low'] }}</td>
         <td>{{ $band['high'] }}</td -->
-        <td style="color:#FFF;background-color:{{ $band['color']['hex'] }}"><div>{{ $band['color']['name'] }}</div></td>
+        <td style="color:#FFF;background-color:#{{ $band['color']['hex'] }}"><div>{{ $band['color']['name'] }}</div></td>
     </tr>
     @endforeach
 </table>
